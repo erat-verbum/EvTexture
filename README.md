@@ -112,7 +112,86 @@ https://github.com/DachunKai/EvTexture/assets/66354783/01880c40-147b-4c02-8789-c
 * To simulate and generate the event voxels, refer to the dataset preparation details in [DataPreparation.md](https://github.com/DachunKai/EvTexture/blob/main/datasets/DataPreparation.md).
 
 ### Inference on your own video
-:hammer_and_wrench: We are developing a convenient script to allow users to quickly use our EvTexture model to upscale their own videos. However, our spare time is limited, so please stay tuned!
+
+We provide a CLI tool for processing your own videos. The CLI automatically handles:
+- Loading video frames from file or directory
+- Generating event data using eSIM event simulation
+- Auto-downloading pretrained models
+- Processing with sliding window for long videos
+- Optional deinterlacing for interlaced sources
+
+#### Installation
+
+```bash
+# Create virtual environment and install dependencies
+uv venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
+```
+
+The CLI requires:
+- `click` - CLI framework
+- OpenCV (`opencv-python`) - Video/frame I/O
+- PyTorch - Model inference
+
+#### Basic Usage
+
+```bash
+# Process a video file
+evtexture input.mp4 -o output_frames/
+
+# Process with verbose output
+evtexture input.mp4 -o output_frames/ --verbose
+
+# Auto-download model if missing
+evtexture input.mp4 -o output_frames/ --download
+
+# Use specific model (REDS or Vimeo90K)
+evtexture input.mp4 -o output_frames/ --model REDS
+```
+
+#### Advanced Options
+
+```bash
+# Process interlaced video (e.g., DVD content)
+evtexture input.mkv -o output/ --deinterlace
+
+# Limit number of frames
+evtexture input.mp4 -o output/ --max-frames 100
+
+# Process specific frame range
+evtexture input.mp4 -o output/ --start-frame 50 --max-frames 100
+
+# Adjust window size for memory/speed tradeoff
+evtexture input.mp4 -o output/ --window-size 7 --stride 1
+
+# Output as video file
+evtexture input.mp4 -o output.mp4
+```
+
+#### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-o, --output` | required | Output directory or video file |
+| `--model` | Vimeo90K | Model choice (REDS or Vimeo90K) |
+| `--download` | False | Auto-download model if missing |
+| `--window-size` | 7 | Frames per inference window |
+| `--stride` | 1 | Window stride (1=overlap, window_size=no overlap) |
+| `--fps` | 24.0 | Input video FPS for event generation |
+| `--device` | cuda | Device (cuda or cpu) |
+| `--video-output` | None | Encode output as video file |
+| `--max-frames` | None | Maximum frames to process |
+| `--start-frame` | 0 | Starting frame index |
+| `--deinterlace` | False | Deinterlace input video |
+| `-v, --verbose` | False | Show verbose output |
+
+#### Models
+
+Models are automatically downloaded to `experiments/pretrained_models/EvTexture/`:
+- `EvTexture_REDS_BIx4.pth` - Better for lower resolution / detail-heavy content
+- `EvTexture_Vimeo90K_BIx4.pth` - Fewer artifacts for larger images
 
 ## :blush: Citation
 If you find the code and pre-trained models useful for your research, please consider citing our paper. :smiley:

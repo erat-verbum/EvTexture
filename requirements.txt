@@ -1,5 +1,6 @@
 addict
 argparse
+click
 einops
 future
 h5py
