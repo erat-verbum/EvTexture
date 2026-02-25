@@ -18,6 +18,7 @@ results/*
 tb_logger/*
 wandb/*
 tmp/*
+data/*
 
 docs/api
 scripts/__init__.py
