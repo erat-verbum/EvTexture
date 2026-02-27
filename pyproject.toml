@@ -1,0 +1,60 @@
+[build-system]
+requires = ["uv_build>=0.9.2,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "evtexture"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Event-driven Texture Enhancement for Video Super-Resolution"
+authors = [
+    {name = "Nelson", email = "nelson@example.com"},
+]
+dependencies = [
+    "addict",
+    "argparse",
+    "click",
+    "einops",
+    "future",
+    "h5py",
+    "lpips",
+    "lmdb",
+    "matplotlib",
+    "numpy>=1.17",
+    "opencv-python",
+    "pandas",
+    "Pillow",
+    "pyyaml",
+    "requests",
+    "scikit-image",
+    "scipy",
+    "setuptools",
+    "tensorboard",
+    "tensorboardX",
+    "torch>=1.10.2",
+    "torchvision>=0.11.3",
+    "tqdm",
+    "wandb",
+    "yapf",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.38.0,<2.0.0",
+    "ruff>=0.6.0",
+    "pyright>=1.1.349",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "httpx",
+]
+
+[project.scripts]
+evtexture = "src.cli.cli:main"
+
+[tool.uv]
+package = false
+
+[tool.pyright]
+exclude = [
+    ".venv/**"
+]
+
+[pytest]
+pythonpath = ["src"]
