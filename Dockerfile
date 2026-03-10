@@ -22,11 +22,11 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY requirements.txt ./
 
-RUN uv venv --system --python 3.10 && \
-    uv sync --system
+RUN uv venv --python 3.10 && \
+    uv sync
 
 COPY . .
 
 EXPOSE 8001
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD /root/.local/bin/uv run uvicorn src.main:app --host 0.0.0.0 --port 8001

@@ -8,8 +8,15 @@ services:
     volumes:
       - ./data:/data
       - ./output:/output
-    runtime: nvidia
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=0
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8001
+    entrypoint: []
+    command: /bin/bash -c "/root/.local/bin/uv run uvicorn src.main:app --host 0.0.0.0 --port 8001"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
