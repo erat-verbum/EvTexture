@@ -20,7 +20,6 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 COPY pyproject.toml ./
-COPY requirements.txt ./
 
 RUN uv venv --python 3.10 && \
     uv sync

@@ -1,26 +1,17 @@
-.PHONY: install lint lint-fix check test test-unit test-int run
+.PHONY: install lint lint-fix check run
 
 install:
 	uv venv --clear
 	uv sync
 
 lint:
-	uv run ruff check src test
+	uv run ruff check src
 
 lint-fix:
-	uv run ruff check src test --fix
+	uv run ruff check src --fix
 
 check:
-	PYTHONPATH=. uv run pyright src test
-
-test:
-	PYTHONPATH=. uv run pytest --cov=src --cov-report=term-missing --tb=short
-
-test-unit:
-	PYTHONPATH=. uv run pytest test/unit/ -v --tb=short
-
-test-int:
-	PYTHONPATH=. uv run pytest test/integration/ -v --tb=short
+	PYTHONPATH=. uv run pyright src
 
 run:
 	uv run uvicorn src.main:app --host 0.0.0.0 --port 8001
