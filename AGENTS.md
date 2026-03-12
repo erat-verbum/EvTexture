@@ -2,62 +2,21 @@
 
 Purpose: Video super-resolution CLI tool with FastAPI web service interface for job management. Supports both CLI and HTTP API usage.
 
-## Development Workflow
-
-1. **Clarify requirements**: Ask clarifying questions of the user to understand the task fully.
-2. **Plan the approach**: Create/update a TODO list to outline the steps needed to complete the task.
-3. **Research**: Use context7 to look up how libraries work when needed for the task.
-4. **Implement**: Make targeted, small changes, one-by-one to ensure quality and avoid errors.
-5. **Verify**: Read the modified files to ensure the changes are correct.
-6. **Lint and Type Check**: Run linting (`make lint`), fix linting issues (`make lint-fix`), and type checking (`make check`) to ensure code quality.
-7. **Test**: Run tests to verify functionality. Then run tests (`make test` for all, `make test-unit`/`make test-int` for specific types).
-8. **Complete**: Do not stop until all tasks on the TODO list are completed and verified.
-
-## Rules of Engagement
-
-1. Think incredibly hard and long before getting to the Implement step, writing lots and lots, considering all possible options and then choosing the right one
-2. Be concise specifically when responding to the user that a task has been completed
-
 ## Makefile Usage
 
 Before running any command, read the relevant Makefile.
 
+Always run `make lint` and `make check` before considering a task complete.
+
 ### Service-level commands
 
 - `make install`: uv venv/sync
-- `make lint lint-fix check`: ruff/pyright
-- `make test test-unit test-int`: pytest
+- `make lint`: ruff check
+- `make lint-fix`: ruff check --fix
+- `make check`: pyright
 - `make run`: uvicorn
 
 ## File Tree
-
-```
-src/
-├── __init__.py           # Package init
-├── __main__.py           # CLI entry point (python -m evtexture)
-├── main.py               # FastAPI entry point with HTTP endpoints
-├── models.py             # Pydantic models for requests, responses, and data structures
-├── job_runner.py         # Job execution logic - runs CLI as subprocess, tracks progress
-├── cli/                  # CLI implementation
-│   ├── __init__.py
-│   ├── cli.py            # Main CLI command
-│   ├── infer.py          # Inference logic
-│   ├── utils.py          # Utility functions
-│   ├── download.py       # Model downloading
-│   ├── esim.py           # Event simulator
-│   └── evoxels.py        # Event voxel packaging
-└── basicsr/              # BasicSR library (arch, ops, etc.)
-
-test/
-├── unit/                 # Unit tests
-│   └── test__<name_of_file_being_tested>__<name_of_feature_being_tested>.py
-└── integration/         # Integration tests
-    └── test__<name_of_file_being_tested>__<name_of_feature_being_tested>.py
-```
-
-## Project Folder Structure
-
-Each service follows this folder structure:
 
 ```
 evtexture/
@@ -130,6 +89,8 @@ Options:
 - `-v, --verbose`: Show verbose output
 
 ## HTTP Interface
+
+Service runs on port 8001 by default.
 
 ### Health Check
 
