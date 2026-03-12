@@ -10,7 +10,6 @@
 # ignored folders
 # datasets/*
 datasets/*/
-.github/*
 .vscode/*
 experiments/*
 !experiments/.gitkeep

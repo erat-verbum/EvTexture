@@ -19,12 +19,13 @@ ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 
-RUN uv venv --python 3.10 && \
-    uv sync
+RUN uv venv --python 3.10
 
 COPY . .
+
+RUN make install && make lint && make check
 
 EXPOSE 8001
 
