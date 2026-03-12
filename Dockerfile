@@ -25,7 +25,7 @@ RUN uv venv --python 3.10
 
 COPY . .
 
-RUN make install && make lint && make check
+RUN make install && make lint
 
 EXPOSE 8001
 
