@@ -44,6 +44,7 @@ class down(nn.Module):
         x = F.leaky_relu(self.conv2(x), negative_slope=0.1)
         return x
 
+
 @ARCH_REGISTRY.register()
 class UNet(nn.Module):
     """Modified version of Unet from SuperSloMo.
@@ -76,7 +77,11 @@ class UNet(nn.Module):
         self.conv3 = nn.Conv2d(8, outChannels, 3, stride=1, padding=1)
 
         if load_path:
-            self.load_state_dict(torch.load(load_path, map_location=lambda storage, loc: storage)['params_ema'])
+            self.load_state_dict(
+                torch.load(load_path, map_location=lambda storage, loc: storage)[
+                    "params_ema"
+                ]
+            )
 
     def forward(self, x):
         x = self._size_adapter.pad(x)
@@ -94,7 +99,7 @@ class UNet(nn.Module):
         x = self.up5(x, s1)
 
         # Note that original code has relu et the end.
-        if self._ends_with_relu == True:
+        if self._ends_with_relu:
             x = F.leaky_relu(self.conv3(x), negative_slope=0.1)
         else:
             x = self.conv3(x)
@@ -105,10 +110,10 @@ class UNet(nn.Module):
 
 def patch_chunk_2x(input):
     """
-        input (Tensor): [B, C, H, W], and H, W are divisible by 2.
+    input (Tensor): [B, C, H, W], and H, W are divisible by 2.
 
-        return:
-            result (Tensor): [B, 4C, H/2, H/W]
+    return:
+        result (Tensor): [B, 4C, H/2, H/W]
     """
     result = []
     split_h = torch.chunk(input, 2, -2)
@@ -121,7 +126,7 @@ def patch_chunk_2x(input):
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     net = UNet(1, 2)
     input = torch.randn((4, 1, 64, 64))
     out = net(input)

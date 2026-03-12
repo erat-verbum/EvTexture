@@ -32,7 +32,6 @@ def prepare_frames_for_inference(frames: List[np.ndarray], device: str) -> torch
     Returns:
         Tensor of shape (1, N, C, H, W) in RGB format, values in [0, 1]
     """
-    n = len(frames)
     h, w = frames[0].shape[:2]
 
     frames_rgb = []
@@ -198,8 +197,6 @@ def sliding_window_inference(
 
     frames_tensor = prepare_frames_for_inference(frames, device)
 
-    num_windows = max(1, (n_frames - window_size) // stride + 1)
-
     iterator = range(0, n_frames, stride)
     if verbose:
         iterator = tqdm(iterator, desc="Processing windows")
@@ -245,7 +242,6 @@ def sliding_window_inference(
             completed = sum(1 for s in saved_frames) if saved_frames else 0
             progress_callback(completed, n_frames)
 
-    valid_mask = output_counts > 0
     output_accum = output_accum / np.maximum(output_counts, 1)
 
     output_frames = []

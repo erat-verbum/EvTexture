@@ -87,7 +87,6 @@ def main(
     if verbose:
         click.echo(f"\n[1/5] Loading input: {input}")
 
-    input_path = Path(input)
     temp_deinterlaced = None
 
     if utils.is_video_file(input):

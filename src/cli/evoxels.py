@@ -52,14 +52,10 @@ def events_to_image_torch(
         zero_v = torch.tensor([0.0], device=device)
         ones_v = torch.tensor([1.0], device=device)
         clipx = (
-            img_size[1]
-            if interpolation is None and padding == False
-            else img_size[1] - 1
+            img_size[1] if interpolation is None and not padding else img_size[1] - 1
         )
         clipy = (
-            img_size[0]
-            if interpolation is None and padding == False
-            else img_size[0] - 1
+            img_size[0] if interpolation is None and not padding else img_size[0] - 1
         )
         mask = torch.where(xs >= clipx, zero_v, ones_v) * torch.where(
             ys >= clipy, zero_v, ones_v
