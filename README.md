@@ -24,10 +24,16 @@ Official Pytorch implementation for the "EvTexture: Event-driven Texture Enhance
 
 ## :bookmark: Table of Content
 1. [Video Demos](#video-demos)
-2. [Code](#code)
-3. [Citation](#citation)
-4. [Contact](#contact)
-5. [License and Acknowledgement](#license-and-acknowledgement)
+2. [Differences from Upstream](#differences-from-upstream)
+3. [Code](#code)
+   - [Quick Start](#quick-start)
+   - [Installation](#installation)
+   - [Development Commands](#development-commands)
+   - [FastAPI Service](#fastapi-service)
+   - [CLI Usage](#cli-usage)
+4. [Citation](#citation)
+5. [Contact](#contact)
+6. [License and Acknowledgement](#license-and-acknowledgement)
 
 ## :fire: Video Demos
 A $4\times$ upsampling results on the [Vid4](https://paperswithcode.com/sota/video-super-resolution-on-vid4-4x-upscaling) and [REDS4](https://paperswithcode.com/dataset/reds) test sets.
@@ -40,37 +46,157 @@ https://github.com/DachunKai/EvTexture/assets/66354783/e1e6b340-64b3-4d94-90ee-5
 
 https://github.com/DachunKai/EvTexture/assets/66354783/01880c40-147b-4c02-8789-ced0c1bff9c4
 
-## Code
-### Installation
-* Dependencies: [Miniconda](https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh), [CUDA Toolkit 11.1.1](https://developer.nvidia.com/cuda-11.1.1-download-archive), [torch 1.10.2+cu111](https://download.pytorch.org/whl/cu111/torch-1.10.2%2Bcu111-cp37-cp37m-linux_x86_64.whl), and [torchvision 0.11.3+cu111](https://download.pytorch.org/whl/cu111/torchvision-0.11.3%2Bcu111-cp37-cp37m-linux_x86_64.whl).
+## Differences from Upstream
 
-* Run in Conda
+This repository is a wrapper around the original [EvTexture](https://github.com/DachunKai/EvTexture) research project, adding a FastAPI web service and CLI interface for easier deployment. Key changes from the upstream:
+
+### Architecture
+- **FastAPI Service**: Added web service for job management via HTTP API (port 8001)
+- **CLI Tool**: Added `evtexture` command-line interface for processing videos
+- **Package Manager**: Replaced Conda/pip with [uv](https://github.com/astral-sh/uv) for faster dependency management
+- **Python Version**: Requires Python 3.10+ (upstream used 3.7)
+
+### Project Structure
+- **Directory Layout**: Moved source code under `src/` directory for proper packaging
+- **Build System**: Added `pyproject.toml` with uv build backend (removed `setup.py`)
+- **Development Tools**: Added Makefile for common operations and Dockerfile with GPU support
+
+### Usage Changes
+- **Installation**: Use `make install` or `uv sync` instead of Conda/pip setup
+- **Running**: Use `make run` to start the FastAPI service
+- **Job Management**: Process videos via HTTP API endpoints instead of script-based execution
+- **Progress Tracking**: Real-time progress via API polling
+
+The core inference code in `src/basicsr/` remains largely unchanged from the upstream repository.
+
+## Code
+### Quick Start
+
+```bash
+# Install dependencies
+make install
+
+# Run the FastAPI service
+make run
+```
+
+The service runs on port 8001 by default.
+
+### Installation
+* Dependencies: Python 3.10+, [uv](https://github.com/astral-sh/uv)
+
+* Using Make (recommended):
 
     ```bash
-    conda create -y -n evtexture python=3.7
-    conda activate evtexture
-    pip install torch-1.10.2+cu111-cp37-cp37m-linux_x86_64.whl
-    pip install torchvision-0.11.3+cu111-cp37-cp37m-linux_x86_64.whl
-    git clone https://github.com/DachunKai/EvTexture.git
-    cd EvTexture && pip install -r requirements.txt && python setup.py develop
+    make install
     ```
-* Run in Docker :clap:
 
-  Note: before running the Docker image, make sure to install nvidia-docker by following the [official instructions](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+* Using uv directly:
 
-  [Option 1] Directly pull the published Docker image we have provided from [Alibaba Cloud](https://cr.console.aliyun.com/cn-hangzhou/instances).
+    ```bash
+    uv venv .venv
+    source .venv/bin/activate
+    uv sync
+    ```
+
+* Run in Docker:
+
   ```bash
-  docker pull registry.cn-hangzhou.aliyuncs.com/dachunkai/evtexture:latest
+  docker-compose up -d
   ```
 
-  [Option 2] We also provide a [Dockerfile](https://github.com/DachunKai/EvTexture/blob/main/docker/Dockerfile) that you can use to build the image yourself.
+  Or build and run manually:
   ```bash
-  cd EvTexture && docker build -t evtexture ./docker
+  make docker-build
+  make docker-run
   ```
-  The pulled or self-built Docker image containes a complete conda environment named `evtexture`. After running the image, you can mount your data and operate within this environment.
-  ```bash
-  source activate evtexture && cd EvTexture && python setup.py develop
-  ```
+
+### Development Commands
+
+| Command | Description |
+|---------|-------------|
+| `make install` | Create virtual environment and sync dependencies |
+| `make lint` | Run ruff linting |
+| `make lint-fix` | Auto-fix linting issues |
+| `make check` | Run pyright type checking |
+| `make run` | Start FastAPI service on port 8001 |
+| `make docker-build` | Build Docker image |
+| `make docker-run` | Run Docker container with GPU support |
+| `make up` | Start services with docker-compose |
+| `make down` | Stop docker-compose services |
+
+### FastAPI Service
+
+The project includes a FastAPI web service for job management. The service runs on port 8001.
+
+#### Health Check
+
+```bash
+GET /health
+```
+
+Response:
+```json
+{
+  "status": "healthy|unhealthy|degraded",
+  "message": "string",
+  "timestamp": "ISO timestamp",
+  "service_name": "evtexture"
+}
+```
+
+#### Job Management
+
+**Create Job:**
+```bash
+POST /job
+```
+
+Request:
+```json
+{
+  "job_id": "string",
+  "input_params": {
+    "input": "/path/to/input",
+    "output": "/path/to/output",
+    "model": "Vimeo90K",
+    "window_size": 7,
+    "stride": 1,
+    "fps": 24.0,
+    "device": "cuda",
+    "download": true
+  }
+}
+```
+
+**Get Job Status:**
+```bash
+GET /job
+```
+
+Response:
+```json
+{
+  "id": "string",
+  "status": "running|completed|failed|cancelled",
+  "progress": 0-100,
+  "result": { ... },
+  "error": "string",
+  "created_at": "ISO timestamp",
+  "started_at": "ISO timestamp",
+  "finished_at": "ISO timestamp"
+}
+```
+
+**Cancel Job:**
+```bash
+POST /job/cancel
+```
+
+Request: `{}` (empty body)
+
+Response: `{"message": "Job cancelled"}`
+
 ### Test
 1. Download the pretrained models from ([Releases](https://github.com/DachunKai/EvTexture/releases) / [Onedrive](https://1drv.ms/f/c/2d90e71fb9eb254f/EnMm8c2mP_FPv6lwt1jy01YB6bQhoPQ25vtzAhycYisERw?e=DiI2Ab) / [Google Drive](https://drive.google.com/drive/folders/1oqOAZbroYW-yfyzIbLYPMJ2ZQmaaCXKy?usp=sharing) / [Baidu Cloud](https://pan.baidu.com/s/161bfWZGVH1UBCCka93ImqQ?pwd=n8hg)(n8hg)) and place them to `experiments/pretrained_models/EvTexture/`. The network architecture code is in [evtexture_arch.py](https://github.com/DachunKai/EvTexture/blob/main/basicsr/archs/evtexture_arch.py).
     * *EvTexture_REDS_BIx4.pth*: trained on REDS dataset with BI degradation for $4\times$ SR scale.
@@ -120,20 +246,7 @@ We provide a CLI tool for processing your own videos. The CLI automatically hand
 - Processing with sliding window for long videos
 - Optional deinterlacing for interlaced sources
 
-#### Installation
-
-```bash
-# Create virtual environment and install dependencies
-uv venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
-```
-
-The CLI requires:
-- `click` - CLI framework
-- OpenCV (`opencv-python`) - Video/frame I/O
-- PyTorch - Model inference
+The CLI is available after running `make install` (or `uv sync`).
 
 #### Basic Usage
 
